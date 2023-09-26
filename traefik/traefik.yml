@@ -1,0 +1,10 @@
+entryPoints:
+  web:
+    address: ":8080"
+api:
+  dashboard: true
+providers:
+  docker:
+    exposedbydefault: false
+    network: traefik_proxy
+    endpoint: "tcp://socket-proxy:2375"

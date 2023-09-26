@@ -10,5 +10,10 @@ services:
       - /volume1/docker/tautulli:/config
     ports:
       - 8181:8181
-    network_mode: synobridge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-home.rule=PathPrefix(`/tautulli/`)"
+    networks:
+      - synobridge
+      - traefik_proxy
     restart: unless-stopped
