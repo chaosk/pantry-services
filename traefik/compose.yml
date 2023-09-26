@@ -19,17 +19,16 @@ services:
     volumes:
       # - /volume1/docker/traefik:/etc/traefik
       - ./traefik.yml:/etc/traefik/traefik.yml
-  traefik-home:
-    image: ghcr.io/santimar/traefik-home:latest
-    container_name: traefik-home
-    environment:
-      DOCKER_HOST: "tcp://socket-proxy:2375"
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik-home.rule=Path(`/`)"
     networks:
       - traefik_proxy
-      - traefik_socket
+    volumes:
+      - /volume1/docker/dashy/conf.yml:/app/public/conf.yml
   socket-proxy:
     image: tecnativa/docker-socket-proxy
     container_name: socket-proxy
