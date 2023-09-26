@@ -1,0 +1,37 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    depends_on:
+      - socket-proxy
+    restart: unless-stopped
+    network_mode: synobridge
+    networks:
+      traefik_proxy: {}
+      traefik_socket: {}
+    ports:
+      - 8080:8080
+    labels:
+      - traefik.enable=true
+      - traefik.frontend.rule=Host:pantry.orchard.loc.ecksdee.tech
+      - traefik.port=8080
+      # - traefik.frontend.auth.basic=${BASIC_AUTH}
+    volumes:
+      - /volume1/docker/traefik:/etc/traefik
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: socket-proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+    networks:
+      - traefik_socket
+networks:
+  # For containers only accessed through Traefik
+  traefik_proxy:
+    internal: true
+  # For Traefik and the socket-proxy only
+  traefik_socket:
+    internal: true
