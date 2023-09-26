@@ -11,7 +11,12 @@ services:
       - /volume1/malachit:/data
     ports:
       - 8989:8989
-    network_mode: synobridge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.rule=PathPrefix(`/sonarr/`)"
+    networks:
+      - synobridge
+      - traefik_proxy
     restart: unless-stopped
   radarr:
     image: linuxserver/radarr:latest
@@ -25,7 +30,12 @@ services:
       - /volume1/malachit:/data
     ports:
       - 7878:7878
-    network_mode: synobridge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.rule=PathPrefix(`/radarr/`)"
+    networks:
+      - synobridge
+      - traefik_proxy
     restart: unless-stopped
   bazarr:
     image: linuxserver/bazarr:latest
@@ -39,5 +49,15 @@ services:
       - /volume1/malachit:/data
     ports:
       - 6767:6767
-    network_mode: synobridge
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.rule=PathPrefix(`/bazarr/`)"
+    networks:
+      - synobridge
+      - traefik_proxy
     restart: unless-stopped
+networks:
+  synobridge:
+    external: true
+  traefik_proxy:
+    external: true

@@ -12,8 +12,13 @@ services:
       - 8181:8181
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik-home.rule=PathPrefix(`/tautulli/`)"
+      - "traefik.http.routers.tautulli.rule=PathPrefix(`/tautulli/`)"
     networks:
       - synobridge
       - traefik_proxy
     restart: unless-stopped
+networks:
+  synobridge:
+    external: true
+  traefik_proxy:
+    external: true
