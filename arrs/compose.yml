@@ -56,6 +56,24 @@ services:
       - synobridge
       - traefik_proxy
     restart: unless-stopped
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PGID=65536
+      - PUID=1029
+      - TZ=Europe/London
+    volumes:
+      - /volume1/docker/prowlarr:/config
+    ports:
+      - 9696:9696
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.rule=PathPrefix(`/prowlarr/`)"
+    networks:
+      - synobridge
+      - traefik_proxy
+    restart: unless-stopped
 networks:
   synobridge:
     external: true
