@@ -8,7 +8,8 @@ services:
       - TZ=Europe/London
     volumes:
       - /volume1/docker/sonarr:/config
-      - /volume1/malachit:/data
+      - /volume1/malachit/media:/data/media
+      - /volume1/ingest/torrents:/data/torrents
     ports:
       - 8989:8989
     labels:
@@ -27,7 +28,8 @@ services:
       - TZ=Europe/London
     volumes:
       - /volume1/docker/radarr:/config
-      - /volume1/malachit:/data
+      - /volume1/malachit/media:/data/media
+      - /volume1/ingest/torrents:/data/torrents
     ports:
       - 7878:7878
     labels:
@@ -46,7 +48,8 @@ services:
       - TZ=Europe/London
     volumes:
       - /volume1/docker/bazarr:/config
-      - /volume1/malachit:/data
+      - /volume1/malachit/media:/data/media
+      - /volume1/ingest/torrents:/data/torrents
     ports:
       - 6767:6767
     labels:
