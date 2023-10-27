@@ -1,0 +1,34 @@
+services:
+  plex:
+    image: linuxserver/plex:latest
+    container_name: plex
+    environment:
+      - PGID=65536
+      - PUID=1029
+      - TZ=Europe/London
+    volumes:
+      - /volume1/docker/plex:/config
+      - /volume1/malachit/media:/media
+    ports:
+      - 32400:32400
+      - 32400:32400
+      - 1900:1900/udp
+      - 5353:5353/udp
+      - 8324:8324
+      - 32410:32410/udp
+      - 32412:32412/udp
+      - 32413:32413/udp
+      - 32414:32414/udp
+      - 32469:32469
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.plex.rule=PathPrefix(`/plex/`)"
+    networks:
+      - synobridge
+      - traefik_proxy
+    restart: unless-stopped
+networks:
+  synobridge:
+    external: true
+  traefik_proxy:
+    external: true
