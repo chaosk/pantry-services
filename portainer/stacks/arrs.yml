@@ -1,0 +1,80 @@
+services:
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    env_file:
+      - /defaults.env
+    volumes:
+      - $DATA_DIR/sonarr:/config
+      - $SHARE_DIR/media:/data/media
+      - $INGEST_DIR/torrents:/data/torrents
+    ports:
+      - 8989:8989
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.sonarr.entrypoints=websecure"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN_NAME}`)"
+    networks:
+      - synobridge
+      - traefik
+    restart: unless-stopped
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    env_file:
+      - /defaults.env
+    volumes:
+      - $DATA_DIR/radarr:/config
+      - $SHARE_DIR/media:/data/media
+      - $INGEST_DIR/torrents:/data/torrents
+    ports:
+      - 7878:7878
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.radarr.entrypoints=websecure"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.${DOMAIN_NAME}`)"
+    networks:
+      - synobridge
+      - traefik
+    restart: unless-stopped
+  bazarr:
+    image: linuxserver/bazarr:latest
+    container_name: bazarr
+    env_file:
+      - /defaults.env
+    volumes:
+      - $DATA_DIR/bazarr:/config
+      - $SHARE_DIR/media:/data/media
+      - $INGEST_DIR/torrents:/data/torrents
+    ports:
+      - 6767:6767
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.bazarr.entrypoints=websecure"
+      - "traefik.http.routers.bazarr.rule=Host(`bazarr.${DOMAIN_NAME}`)"
+    networks:
+      - synobridge
+      - traefik
+    restart: unless-stopped
+  prowlarr:
+    image: linuxserver/prowlarr:latest
+    container_name: prowlarr
+    env_file:
+      - /defaults.env
+    volumes:
+      - $DATA_DIR/prowlarr:/config
+    ports:
+      - 9696:9696
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prowlarr.entrypoints=websecure"
+      - "traefik.http.routers.prowlarr.rule=Host(`prowlarr.${DOMAIN_NAME}`)"
+    networks:
+      - synobridge
+      - traefik
+    restart: unless-stopped
+networks:
+  synobridge:
+    external: true
+  traefik:
+    external: true
