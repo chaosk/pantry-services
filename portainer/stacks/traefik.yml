@@ -92,7 +92,6 @@ services:
       - ${DATA_DIR}/dashy/conf.yml:/app/public/conf.yml
   socket-proxy:
     image: tecnativa/docker-socket-proxy
-    container_name: socket-proxy
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

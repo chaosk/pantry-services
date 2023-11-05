@@ -1,0 +1,35 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    env_file:
+      - /defaults.env
+    volumes:
+      - $DATA_DIR/homepage:/app/config
+    ports:
+      - 3000:3000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.entrypoints=websecure"
+      - "traefik.http.routers.homepage.rule=Host(`${DOMAIN_NAME}`)"
+    networks:
+      - synobridge
+      - traefik
+      - socket
+    restart: unless-stopped
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+    networks:
+      - socket
+networks:
+  synobridge:
+    external: true
+  traefik:
+    external: true
+  socket:
+    internal: true
