@@ -1,0 +1,112 @@
+services:
+  traefik:
+    image: traefik:latest
+    container_name: traefik
+    depends_on:
+      - socket-proxy
+    restart: unless-stopped
+    networks:
+      synobridge: {}
+      traefik: {}
+      socket: {}
+    ports:
+      - 80:80
+      - 443:443
+    command:
+      - "--api=true"
+      - "--api.dashboard=true"
+      - "--global.sendAnonymousUsage=false"
+      # Providers
+      - "--providers.docker=true"
+      - "--providers.docker.endpoint=tcp://socket-proxy:2375"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.network=traefik"
+      # HTTP to HTTPS redirection
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entryPoint.priority=1000" # Higher priority than any rule per default to redirect everything to https. If no redirection is required, put a higher priority to the rule.
+      - "--entrypoints.websecure.address=:443"
+      # Certificate challenge
+      - "--certificatesresolvers.letsencrypt.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=vercel"
+      - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
+      - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    env_file:
+      - /defaults.env
+      - ../../stack.env
+    labels:
+      - "traefik.enable=true"
+      ## Traefik Interface
+      # HTTP Routers
+      - "traefik.http.routers.traefik-rtr.entrypoints=websecure"
+      - "traefik.http.routers.traefik-rtr.rule=Host(`traefik.${DOMAIN_NAME}`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.routers.traefik-rtr.tls=true"
+      # Certificate generation for the entire server is made here
+      - "traefik.http.routers.traefik-rtr.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].main=${DOMAIN_NAME}"
+      - "traefik.http.routers.traefik-rtr.tls.domains[0].sans=*.${DOMAIN_NAME}"
+      # API service
+      - "traefik.http.routers.traefik-rtr.service=api@internal"
+      ## Healthcheck/ping
+      #- "traefik.http.routers.ping.rule=Host(`traefik.${DOMAIN_NAME}`) && Path(`/ping`)"
+      #- "traefik.http.routers.ping.tls=true"
+      #- "traefik.http.routers.ping.service=ping@internal"
+      ## Rate limit
+      - "traefik.http.middlewares.ratelimit-mw.ratelimit.average=200"
+      - "traefik.http.middlewares.ratelimit-mw.ratelimit.burst=100"
+      # - "traefik.http.middlewares.ratelimit-mw.ratelimit.sourcecriterion.ipstrategy.excludedips=127.0.0.1/32, 192.168.1.0/24, 172.16.0.0/12"
+      ## Compress
+      - "traefik.http.middlewares.compress-mw.compress=true"
+      ## Secure headers
+      - "traefik.http.middlewares.secureheaders-mw.headers.accessControlAllowMethods=GET,OPTIONS,PUT"
+      - "traefik.http.middlewares.secureheaders-mw.headers.accessControlAllowOriginListRegex=https://([a-z]*\\.)?${DOMAIN_NAME}"
+      - "traefik.http.middlewares.secureheaders-mw.headers.addVaryHeader=true"
+      - "traefik.http.middlewares.secureheaders-mw.headers.accessControlMaxAge=100"
+      - "traefik.http.middlewares.secureheaders-mw.headers.hostsProxyHeaders=X-Forwarded-Host"
+      - "traefik.http.middlewares.secureheaders-mw.headers.stsSeconds=63072000"
+      - "traefik.http.middlewares.secureheaders-mw.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.secureheaders-mw.headers.stsPreload=true"
+      - "traefik.http.middlewares.secureheaders-mw.headers.forceSTSHeader=true"
+      # - "traefik.http.middlewares.secureheaders-mw.headers.customFrameOptionsValue=allow-from https://${DOMAIN_NAME}"
+      - "traefik.http.middlewares.secureheaders-mw.headers.contentSecurityPolicy=frame-ancestors 'self' ${DOMAIN_NAME} *.${DOMAIN_NAME}"
+      - "traefik.http.middlewares.secureheaders-mw.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.secureheaders-mw.headers.browserXssFilter=true"
+      - "traefik.http.middlewares.secureheaders-mw.headers.referrerPolicy=strict-origin"
+      - "traefik.http.middlewares.secureheaders-mw.headers.permissionsPolicy=camera=(), microphone=(), geolocation=(), payment=(), usb=(), vr=()"
+      - "traefik.http.middlewares.secureheaders-mw.headers.customResponseHeaders.X-Robots-Tag=none,noarchive,nosnippet,notranslate,noimageindex,"
+      - "traefik.http.middlewares.secureheaders-mw.headers.customResponseHeaders.server="
+    volumes:
+      - ${DATA_DIR}/traefik/certificates:/letsencrypt
+  dashy:
+    image: lissy93/dashy:latest
+    container_name: dashy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashy.rule=Host(`${DOMAIN_NAME}`)"
+    networks:
+      - traefik
+    volumes:
+      - ${DATA_DIR}/dashy/conf.yml:/app/public/conf.yml
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    container_name: socket-proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      INFO: 1
+    networks:
+      - socket
+networks:
+  synobridge:
+    external: true
+  # For containers only accessed through Traefik
+  traefik:
+    external: true
+  # For Traefik and the socket-proxy only
+  socket:
+    internal: true
