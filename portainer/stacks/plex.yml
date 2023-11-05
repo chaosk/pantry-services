@@ -25,6 +25,23 @@ services:
       - synobridge
       - traefik
     restart: unless-stopped
+  tautulli:
+    image: linuxserver/tautulli:latest
+    container_name: tautulli
+    env_file:
+      - /defaults.env
+    volumes:
+      - $DATA_DIR/tautulli:/config
+    ports:
+      - 8181:8181
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.tautulli.entrypoints=websecure"
+      - "traefik.http.routers.tautulli.rule=Host(`tautulli.${DOMAIN_NAME}`)"
+    networks:
+      - synobridge
+      - traefik
+    restart: unless-stopped
 networks:
   synobridge:
     external: true
