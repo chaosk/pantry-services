@@ -11,14 +11,15 @@ services:
     restart: unless-stopped
     networks:
       synobridge: {}
-      traefik_proxy: {}
+      traefik: {}
       socket: {}
     ports:
       - 8000:8000
       - 9000:9000
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.portainer.rule=PathPrefix(`/portainer`)"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.pantry.orchard.loc.ecksdee.tech`)"
     volumes:
       - ./defaults.env:/defaults.env
       - /volume1/docker/data/portainer:/data
@@ -41,7 +42,7 @@ services:
 networks:
   synobridge:
     external: true
-  traefik_proxy:
+  traefik:
     external: true
   socket:
     internal: true
