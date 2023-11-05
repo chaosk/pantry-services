@@ -17,6 +17,8 @@ services:
       - "--api.dashboard=true"
       - "--global.sendAnonymousUsage=false"
       # Providers
+      - "--providers.file.directory=/config"
+      - "--providers.file.watch=true"
       - "--providers.docker=true"
       - "--providers.docker.endpoint=tcp://socket-proxy:2375"
       - "--providers.docker.exposedByDefault=false"
@@ -80,6 +82,7 @@ services:
       - "traefik.http.middlewares.secureheaders-mw.headers.customResponseHeaders.X-Robots-Tag=none,noarchive,nosnippet,notranslate,noimageindex,"
       - "traefik.http.middlewares.secureheaders-mw.headers.customResponseHeaders.server="
     volumes:
+      - ${DATA_DIR}/traefik/config:/config
       - ${DATA_DIR}/traefik/certificates:/letsencrypt
   socket-proxy:
     image: tecnativa/docker-socket-proxy
