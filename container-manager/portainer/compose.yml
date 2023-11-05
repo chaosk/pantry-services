@@ -1,0 +1,45 @@
+services:
+  portainer:
+    image: portainer/portainer-ce
+    container_name: portainer
+    depends_on:
+      - socket-proxy
+    command: -H tcp://socket-proxy:2375
+    env_file:
+      - defaults.env
+    restart: unless-stopped
+    networks:
+      synobridge: {}
+      traefik_proxy: {}
+      socket: {}
+    ports:
+      - 8000:8000
+      - 9000:9000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=PathPrefix(`/portainer`)"
+    volumes:
+      - /volume1/docker/data/portainer:/data
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      CONTAINERS: 1
+      IMAGES: 1
+      INFO: 1
+      NETWORKS: 1
+      POST: 1
+      SERVICES: 1
+      TASKS: 1
+      VOLUMES: 1
+    networks:
+      - socket
+networks:
+  synobridge:
+    external: true
+  traefik_proxy:
+    external: true
+  socket:
+    internal: true
