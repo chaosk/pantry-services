@@ -1,0 +1,62 @@
+version: "3.4"
+services:
+  broker:
+    image: docker.io/library/redis:7
+    restart: unless-stopped
+    volumes:
+      - redisdata:/data
+  db:
+    image: docker.io/library/postgres:15
+    restart: unless-stopped
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: paperless
+  webserver:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    restart: unless-stopped
+    depends_on:
+      - db
+      - broker
+    ports:
+      - 8282:8000
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paperless.entrypoints=websecure"
+      - "traefik.http.routers.paperless.rule=Host(`paperless.${DOMAIN_NAME}`)"
+    networks:
+      - synobridge
+      - traefik
+      - default
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "-S", "--max-time", "2", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - data:/usr/src/paperless/data
+      - media:/usr/src/paperless/media
+      - $DATA_DIR/paperless/consume:/usr/src/paperless/consume
+      - $DATA_DIR/paperless/export:/usr/src/paperless/export
+    env_file: 
+      - ../../stack.env
+    environment:
+      USERMAP_UID: 1029
+      USERMAP_GID: 65536
+      PAPERLESS_OCR_LANGUAGES: pol
+      PAPERLESS_TIME_ZONE: Europe/London
+      PAPERLESS_REDIS: redis://broker:6379
+      PAPERLESS_DBHOST: db
+volumes:
+  data:
+  media:
+  pgdata:
+  redisdata:
+networks:
+  synobridge:
+    external: true
+  traefik:
+    external: true
+  default:
