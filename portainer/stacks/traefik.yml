@@ -80,16 +80,6 @@ services:
       - "traefik.http.middlewares.secureheaders-mw.headers.customResponseHeaders.server="
     volumes:
       - ${DATA_DIR}/traefik/certificates:/letsencrypt
-  dashy:
-    image: lissy93/dashy:latest
-    container_name: dashy
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.dashy.rule=Host(`${DOMAIN_NAME}`)"
-    networks:
-      - traefik
-    volumes:
-      - ${DATA_DIR}/dashy/conf.yml:/app/public/conf.yml
   socket-proxy:
     image: tecnativa/docker-socket-proxy
     restart: unless-stopped
