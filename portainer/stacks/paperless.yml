@@ -25,7 +25,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.paperless.entrypoints=websecure"
+      - "traefik.http.routers.paperless.tls=true"
       - "traefik.http.routers.paperless.rule=Host(`paperless.${DOMAIN_NAME}`)"
+      - "traefik.http.services.webserver-paperless.loadbalancer.server.port=8000"
     networks:
       - synobridge
       - traefik

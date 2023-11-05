@@ -11,7 +11,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homepage.entrypoints=websecure"
+      - "traefik.http.routers.homepage.tls=true"
       - "traefik.http.routers.homepage.rule=Host(`${DOMAIN_NAME}`)"
+      - "traefik.http.services.homepage-homepage.loadbalancer.server.port=3000"
     networks:
       - synobridge
       - traefik

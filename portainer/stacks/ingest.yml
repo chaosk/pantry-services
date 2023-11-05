@@ -17,7 +17,12 @@ services:
       - synobridge
       - traefik
     labels:
-      - com.centurylinklabs.watchtower.enable=false
+      - "com.centurylinklabs.watchtower.enable=false"
+      - "traefik.enable=true"
+      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
+      - "traefik.http.routers.qbittorrent.tls=true"
+      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN_NAME}`)"
+      - "traefik.http.services.qbittorrent-ingest.loadbalancer.server.port=8090"
     restart: unless-stopped
   qbittorrent:
     image: linuxserver/qbittorrent
@@ -29,10 +34,6 @@ services:
     volumes:
       - $DATA_DIR/qbittorrent:/config
       - $INGEST_DIR/torrents:/data/torrents
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
-      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN_NAME}`)"
     network_mode: service:gluetun
     restart: unless-stopped
 networks:

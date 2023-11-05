@@ -20,7 +20,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.plex.entrypoints=websecure"
+      - "traefik.http.routers.plex.tls=true"
       - "traefik.http.routers.plex.rule=Host(`plex.${DOMAIN_NAME}`)"
+      - "traefik.http.services.plex-plex.loadbalancer.server.port=32400"
     networks:
       - synobridge
       - traefik
@@ -37,7 +39,9 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.tautulli.entrypoints=websecure"
+      - "traefik.http.routers.tautulli.tls=true"
       - "traefik.http.routers.tautulli.rule=Host(`tautulli.${DOMAIN_NAME}`)"
+      - "traefik.http.services.tautulli-plex.loadbalancer.server.port=8181"
     networks:
       - synobridge
       - traefik
