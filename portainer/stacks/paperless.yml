@@ -20,16 +20,14 @@ services:
     depends_on:
       - db
       - broker
-    ports:
-      - 8282:8000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.paperless.entrypoints=websecure"
       - "traefik.http.routers.paperless.tls=true"
       - "traefik.http.routers.paperless.rule=Host(`paperless.${DOMAIN_NAME}`)"
+      - "traefik.http.routers.paperless.middlewares=chain-forwardauth@docker"
       - "traefik.http.services.webserver-paperless.loadbalancer.server.port=8000"
     networks:
-      - synobridge
       - traefik
       - default
     healthcheck:
@@ -51,14 +49,15 @@ services:
       PAPERLESS_TIME_ZONE: Europe/London
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBHOST: db
+      PAPERLESS_ENABLE_HTTP_REMOTE_USER: true
+      PAPERLESS_HTTP_REMOTE_USER_HEADER_NAME: HTTP_X_AUTHENTIK_USERNAME
+      PAPERLESS_URL: https://paperless.${DOMAIN_NAME}
 volumes:
   data:
   media:
   pgdata:
   redisdata:
 networks:
-  synobridge:
-    external: true
   traefik:
     external: true
   default:
