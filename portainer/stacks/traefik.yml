@@ -40,6 +40,7 @@ services:
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=vercel"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.delaybeforecheck=5"
+      # Note: my ISP seems to filter out DNS traffic to Vercel NS IPs, hence no client-side check :x
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.disablePropagationCheck=true"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=1.1.1.1:53,8.8.8.8:53"
       - "--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}"
@@ -119,7 +120,12 @@ networks:
     external: true
   # For containers only accessed through Traefik
   traefik:
-    external: true
+     name: traefik
+     ipam:
+      driver: default
+      config:
+        - subnet: 172.21.0.0/16
+          gateway: 172.21.0.254
   # For Traefik and the socket-proxy only
   socket:
     internal: true

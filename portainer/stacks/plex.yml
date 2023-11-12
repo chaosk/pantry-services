@@ -22,10 +22,14 @@ services:
       - "traefik.http.routers.plex.entrypoints=websecure"
       - "traefik.http.routers.plex.tls=true"
       - "traefik.http.routers.plex.rule=Host(`plex.${DOMAIN_NAME}`)"
+      - "traefik.http.services.plex-plex.loadbalancer.server.scheme=https"
       - "traefik.http.services.plex-plex.loadbalancer.server.port=32400"
+      - "traefik.http.services.plex-plex.loadbalancer.serverstransport=plex@file"
     networks:
-      - synobridge
-      - traefik
+      traefik:
+        # Need to manually assign in IP in order to then set the correct hostname in servertransport
+        ipv4_address: 172.21.1.2
+      synobridge: {}
     restart: unless-stopped
   tautulli:
     image: linuxserver/tautulli:latest
