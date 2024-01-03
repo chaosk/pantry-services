@@ -15,6 +15,7 @@ services:
       - "traefik.http.routers.sonarr.entrypoints=websecure"
       - "traefik.http.routers.sonarr.tls=true"
       - "traefik.http.routers.sonarr.rule=Host(`sonarr.${DOMAIN_NAME}`)"
+      - "traefik.http.routers.sonarr.middlewares=chain-forwardauth-plex@docker"
       - "traefik.http.services.sonarr-arrs.loadbalancer.server.port=8989"
     networks:
       - synobridge
