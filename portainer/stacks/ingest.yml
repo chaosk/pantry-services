@@ -6,8 +6,6 @@ services:
       - NET_ADMIN
     devices:
       - /dev/net/tun:/dev/net/tun
-    ports:
-      - 8090:8090
     volumes:
       - $DATA_DIR/gluetun:/gluetun
     env_file:
@@ -15,14 +13,9 @@ services:
       - ../../stack.env
     networks:
       - synobridge
-      - traefik
+      - default
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
-      - "traefik.enable=true"
-      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
-      - "traefik.http.routers.qbittorrent.tls=true"
-      - "traefik.http.routers.qbittorrent.rule=Host(`qbittorrent.${DOMAIN_NAME}`)"
-      - "traefik.http.services.qbittorrent-ingest.loadbalancer.server.port=8090"
     restart: unless-stopped
   qbittorrent:
     image: linuxserver/qbittorrent
@@ -36,9 +29,33 @@ services:
       - $INGEST_DIR/torrents:/data/torrents
     network_mode: service:gluetun
     restart: unless-stopped
+  flood:
+    image: jesec/flood:master
+    container_name: flood
+    user: ${PUID}:${PGID}
+    networks:
+      - default
+      - traefik
+    env_file:
+      - /defaults.env
+      - ../../stack.env
+    command: --auth none --port 3010 --allowedpath /data --qburl http://gluetun:8090
+    environment:
+      - HOME=/config
+    volumes:
+      - $DATA_DIR/flood/config:/config
+      - $INGEST_DIR/torrents:/data/torrents
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.flood.entrypoints=websecure"
+      - "traefik.http.routers.flood.tls=true"
+      - "traefik.http.routers.flood.rule=Host(`flood.${DOMAIN_NAME}`)"
+      - "traefik.http.routers.flood.middlewares=chain-forwardauth@docker"
+      - "traefik.http.services.flood-ingest.loadbalancer.server.port=3010"
+    restart: unless-stopped
 networks:
   synobridge:
     external: true
-  # For containers going through VPN
   traefik:
     external: true
+  default:
