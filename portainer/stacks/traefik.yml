@@ -23,6 +23,8 @@ services:
       - "--api=true"
       - "--api.dashboard=true"
       - "--global.sendAnonymousUsage=false"
+      # Logging
+      - "--accessLog.filePath=/logs/access.log"
       # Providers
       - "--providers.file.directory=/config"
       - "--providers.file.watch=true"
@@ -104,6 +106,7 @@ services:
       - "traefik.http.middlewares.secureheaders-mw.headers.customResponseHeaders.server="
     volumes:
       - ${DATA_DIR}/traefik/config:/config
+      - ${DATA_DIR}/traefik/logs:/logs
       - ${DATA_DIR}/traefik/certificates:/letsencrypt
   socket-proxy:
     image: tecnativa/docker-socket-proxy
