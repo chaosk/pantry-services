@@ -24,7 +24,7 @@ services:
       - "--api.dashboard=true"
       - "--global.sendAnonymousUsage=false"
       # Logging
-      - "--accessLog.filePath=/logs/access.log"
+      # - "--accessLog.filePath=/logs/access.log"
       # Providers
       - "--providers.file.directory=/config"
       - "--providers.file.watch=true"
