@@ -38,6 +38,8 @@ services:
       - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
       - "--entrypoints.web.http.redirections.entryPoint.priority=1000" # Higher priority than any rule per default to redirect everything to https. If no redirection is required, put a higher priority to the rule.
       - "--entrypoints.websecure.address=:443"
+      # Revisit once Traefik has some sort of slow request detection that still allows huge file uploads to go through.
+      - "--entrypoints.websecure.transport.respondingTimeouts.readTimeout=300s"
       # Certificate challenge
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge=true"
       - "--certificatesresolvers.letsencrypt.acme.dnschallenge.provider=vercel"
