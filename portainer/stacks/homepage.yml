@@ -6,6 +6,7 @@ services:
       - /defaults.env
     volumes:
       - $DATA_DIR/homepage:/app/config
+      - $SHARE_DIR/temp:/this-is-for-storage-stats
     ports:
       - 3000:3000
     labels:
