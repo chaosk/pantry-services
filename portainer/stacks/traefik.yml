@@ -4,12 +4,12 @@ services:
     image: traefik:latest
     container_name: traefik
     depends_on:
-      - socket-proxy
+      - docker-socket-traefik
     restart: unless-stopped
     networks:
       synobridge: {}
       traefik: {}
-      socket: {}
+      docker-socket-traefik: {}
     ports:
       - target: 80
         published: 80
@@ -24,12 +24,12 @@ services:
       - "--api.dashboard=true"
       - "--global.sendAnonymousUsage=false"
       # Logging
-      # - "--accessLog.filePath=/logs/access.log"
+      - "--accessLog.filePath=/logs/access.log"
       # Providers
       - "--providers.file.directory=/config"
       - "--providers.file.watch=true"
       - "--providers.docker=true"
-      - "--providers.docker.endpoint=tcp://socket-proxy:2375"
+      - "--providers.docker.endpoint=tcp://docker-socket-traefik:2375"
       - "--providers.docker.exposedByDefault=false"
       - "--providers.docker.network=traefik"
       # HTTP to HTTPS redirection
@@ -110,7 +110,7 @@ services:
       - ${DATA_DIR}/traefik/config:/config
       - ${DATA_DIR}/traefik/logs:/logs
       - ${DATA_DIR}/traefik/certificates:/letsencrypt
-  socket-proxy:
+  docker-socket-traefik:
     image: tecnativa/docker-socket-proxy
     restart: unless-stopped
     volumes:
@@ -119,7 +119,38 @@ services:
       CONTAINERS: 1
       INFO: 1
     networks:
-      - socket
+      - docker-socket-traefik
+  docker-socket-logrotate:
+    image: ghcr.io/knrdl/docker-socket-protector:latest
+    read_only: true
+    cap_drop: [ all ]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - docker-socket-logrotate
+    environment:
+      - LOG_REQUESTS=false
+      - PROFILE=traefik-swarm
+  logrotate:
+    image: vegardit/traefik-logrotate:latest
+    volumes:
+      - ${DATA_DIR}/traefik/logs:/var/log/traefik:rw
+    env_file:
+      - /defaults.env
+    environment:
+      LOGROTATE_LOGS: "/var/log/traefik/*.log"
+      LOGROTATE_TRIGGER_INTERVAL: daily
+      LOGROTATE_TRIGGER_SIZE: 50M
+      LOGROTATE_MAX_BACKUPS: 14
+      LOGROTATE_START_INDEX: 0
+      LOGROTATE_FILE_MODE: 0644
+      LOGROTATE_FILE_USER: ${PUID}
+      LOGROTATE_FILE_GROUP: ${PGID}
+      CRON_SCHEDULE: "* * * * *"
+      DOCKER_HOST: tcp://docker-socket-logrotate:2375
+      TRAEFIK_CONTAINER_ID_COMMAND: docker ps --no-trunc --quiet --filter name=^/traefik$
+    networks:
+      - docker-socket-logrotate
 networks:
   synobridge:
     external: true
@@ -131,6 +162,7 @@ networks:
       config:
         - subnet: 172.21.0.0/16
           gateway: 172.21.0.254
-  # For Traefik and the socket-proxy only
-  socket:
+  docker-socket-traefik:
+    internal: true
+  docker-socket-logrotate:
     internal: true
