@@ -35,8 +35,6 @@ services:
       - "traefik.http.routers.authentik.middlewares=chain-noauth@docker"
       # Service
       - "traefik.http.services.authentik-svc.loadbalancer.server.port=9000"
-    ports:
-      - 9080:9000
     depends_on:
       - db
       - redis

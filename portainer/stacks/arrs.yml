@@ -8,8 +8,6 @@ services:
       - $DATA_DIR/sonarr:/config
       - $SHARE_DIR/media:/data/media
       - $INGEST_DIR/torrents:/data/torrents
-    ports:
-      - 8989:8989
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.sonarr.entrypoints=websecure"
@@ -30,8 +28,6 @@ services:
       - $DATA_DIR/radarr:/config
       - $SHARE_DIR/media:/data/media
       - $INGEST_DIR/torrents:/data/torrents
-    ports:
-      - 7878:7878
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.radarr.entrypoints=websecure"
@@ -52,8 +48,6 @@ services:
       - $DATA_DIR/bazarr:/config
       - $SHARE_DIR/media:/data/media
       - $INGEST_DIR/torrents:/data/torrents
-    ports:
-      - 6767:6767
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.bazarr.entrypoints=websecure"
@@ -72,8 +66,6 @@ services:
       - /defaults.env
     volumes:
       - $DATA_DIR/prowlarr:/config
-    ports:
-      - 9696:9696
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.prowlarr.entrypoints=websecure"
