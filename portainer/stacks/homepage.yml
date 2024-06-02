@@ -4,6 +4,8 @@ services:
     container_name: homepage
     env_file:
       - /defaults.env
+    environment:
+      - LOG_TARGETS=stdout
     volumes:
       - $DATA_DIR/homepage:/app/config
       - $SHARE_DIR/temp:/this-is-for-storage-stats
