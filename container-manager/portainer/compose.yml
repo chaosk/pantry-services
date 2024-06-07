@@ -24,7 +24,7 @@ services:
       - "traefik.http.services.portainer-portainer.loadbalancer.server.port=9000"
     volumes:
       - ./defaults.env:/defaults.env
-      - /volume1/docker/data/portainer:/data
+      - /volume2/docker/data/portainer:/data
   socket-proxy:
     image: tecnativa/docker-socket-proxy
     restart: unless-stopped
