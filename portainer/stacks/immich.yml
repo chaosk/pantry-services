@@ -1,7 +1,6 @@
 services:
   immich-server:
     image: ghcr.io/immich-app/immich-server:release
-    command: ["start.sh", "immich"]
     volumes:
       - $SHARE_DIR/photos:/usr/src/app/upload
       - /etc/localtime:/etc/localtime:ro
@@ -30,23 +29,6 @@ services:
       - "traefik.http.routers.immich.service=immich-svc"
       - "traefik.http.services.immich-svc.loadbalancer.server.port=3001"
     restart: unless-stopped
-  immich-microservices:
-    image: ghcr.io/immich-app/immich-server:release
-    command: ["start.sh", "microservices"]
-    volumes:
-      - $SHARE_DIR/photos:/usr/src/app/upload
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - NODE_ENV=production
-      - DB_HOSTNAME=postgres
-      - DB_USERNAME=${IMMICH_DB_USER}
-      - DB_PASSWORD=${IMMICH_DB_PASS}
-      - DB_DATABASE_NAME=${IMMICH_DB}
-      - REDIS_HOSTNAME=redis
-    env_file:
-      - /defaults.env
-      - ../../stack.env
-    restart: unless-stopped
   immich-machine-learning:
     image: ghcr.io/immich-app/immich-machine-learning:release
     volumes:
@@ -62,12 +44,12 @@ services:
       - /defaults.env
     restart: unless-stopped
   redis:
-    image: registry.hub.docker.com/library/redis:6.2-alpine@sha256:84882e87b54734154586e5f8abd4dce69fe7311315e2fc6d67c29614c8de2672
+    image: library/redis:6.2-alpine@sha256:84882e87b54734154586e5f8abd4dce69fe7311315e2fc6d67c29614c8de2672
     volumes:
       - redisdata:/data
     restart: always
   postgres:
-    image: registry.hub.docker.com/tensorchord/pgvecto-rs:pg14-v0.2.0@sha256:90724186f0a3517cf6914295b5ab410db9ce23190a2d9d0b9dd6463e3fa298f0
+    image: tensorchord/pgvecto-rs:pg14-v0.2.0@sha256:90724186f0a3517cf6914295b5ab410db9ce23190a2d9d0b9dd6463e3fa298f0
     environment:
       POSTGRES_USER: ${IMMICH_DB_USER}
       POSTGRES_PASSWORD: ${IMMICH_DB_PASS}
