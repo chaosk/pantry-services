@@ -4,7 +4,6 @@ services:
     container_name: watchtower
     env_file:
       - /defaults.env
-      - ../../stack.env
     environment:
       WATCHTOWER_CLEANUP: true
       WATCHTOWER_INCLUDE_STOPPED: true

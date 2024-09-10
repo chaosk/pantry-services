@@ -9,7 +9,6 @@ services:
       - postgres
     env_file:
       - /defaults.env
-      - ../../stack.env
     environment:
       - NODE_ENV=production
       - DB_HOSTNAME=postgres

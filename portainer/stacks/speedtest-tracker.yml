@@ -12,7 +12,6 @@ services:
       - DB_PASSWORD=${SPEEDTEST_TRACKER_DB_PASS}
     env_file:
       - /defaults.env
-      - ../../stack.env
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.speedtest-tracker.entrypoints=websecure"
@@ -37,7 +36,6 @@ services:
       - POSTGRES_PASSWORD=${SPEEDTEST_TRACKER_DB_PASS}
     env_file:
       - /defaults.env
-      - ../../stack.env
     volumes:
       - pgdata:/var/lib/postgresql/data
 networks:

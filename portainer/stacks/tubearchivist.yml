@@ -10,9 +10,9 @@ services:
       - default
     env_file:
       - /defaults.env
-      - ../../stack.env
     environment:
       - ES_URL=http://elasticsearch:9200
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - REDIS_HOST=redis
       - HOST_UID=1029
       - HOST_GID=65536
@@ -52,12 +52,12 @@ services:
     image: bbilly1/tubearchivist-es
     env_file:
       - /defaults.env
-      - ../../stack.env
     environment:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - "xpack.security.enabled=true"
       - "discovery.type=single-node"
       - "path.repo=/usr/share/elasticsearch/data/snapshot"
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     ulimits:
       memlock:
         soft: -1

@@ -4,6 +4,7 @@ services:
     container_name: authentik
     command: server
     environment:
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
       - AUTHENTIK_REDIS__HOST=redis
       - AUTHENTIK_POSTGRESQL__HOST=db
       - AUTHENTIK_POSTGRESQL__USER=${AUTHENTIK_DB_USER}
@@ -22,7 +23,6 @@ services:
       - ${DATA_DIR}/authentik/geoip:/geoip
     env_file:
       - /defaults.env
-      - ../../stack.env
     labels:
       - "traefik.enable=true"
       # HTTP Routers
@@ -47,6 +47,7 @@ services:
     image: ghcr.io/goauthentik/server:latest
     command: worker
     environment:
+      - AUTHENTIK_SECRET_KEY=${AUTHENTIK_SECRET_KEY}
       - AUTHENTIK_REDIS__HOST=redis
       - AUTHENTIK_POSTGRESQL__HOST=db
       - AUTHENTIK_POSTGRESQL__USER=${AUTHENTIK_DB_USER}
@@ -64,7 +65,6 @@ services:
       - ${DATA_DIR}/authentik/geoip:/geoip
     env_file:
       - /defaults.env
-      - ../../stack.env
     depends_on:
       - db
       - redis
@@ -84,8 +84,6 @@ services:
       - POSTGRES_PASSWORD=${AUTHENTIK_DB_PASS}
       - POSTGRES_USER=${AUTHENTIK_DB_USER}
       - POSTGRES_DB=${AUTHENTIK_DB}
-    env_file:
-      - ../../stack.env
   redis:
     image: docker.io/library/redis:7
     healthcheck:
@@ -104,8 +102,8 @@ services:
     environment:
       - GEOIPUPDATE_EDITION_IDS=GeoLite2-City
       - GEOIPUPDATE_FREQUENCY=8
-    env_file:
-      - ../../stack.env
+      - GEOIPUPDATE_ACCOUNT_ID=${GEOIPUPDATE_ACCOUNT_ID}
+      - GEOIPUPDATE_LICENSE_KEY=${GEOIPUPDATE_LICENSE_KEY}
 volumes:
   pgdata:
   redisdata:
