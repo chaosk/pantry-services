@@ -49,7 +49,7 @@ services:
       - redis:/data
     restart: unless-stopped
   elasticsearch:
-    image: bbilly1/tubearchivist-es
+    image: bbilly1/tubearchivist-es:8.14.3
     env_file:
       - /defaults.env
     environment:
