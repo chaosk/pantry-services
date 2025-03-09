@@ -13,10 +13,10 @@ services:
     environment:
       - ES_URL=http://elasticsearch:9200
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
-      - REDIS_HOST=redis
+      - REDIS_CON=redis://redis:6379
       - HOST_UID=1029
       - HOST_GID=65536
-      - TA_HOST=tubearchivist.${DOMAIN_NAME}
+      - TA_HOST=https://tubearchivist.${DOMAIN_NAME}
       - TA_ENABLE_AUTH_PROXY=true
       - TA_USERNAME=tubearchivist
       - TA_PASSWORD=tubearchivist
@@ -40,7 +40,7 @@ services:
       - redis
     restart: unless-stopped
   redis:
-    image: redis/redis-stack-server
+    image: redis
     expose:
       - "6379"
     env_file:
@@ -49,7 +49,7 @@ services:
       - redis:/data
     restart: unless-stopped
   elasticsearch:
-    image: bbilly1/tubearchivist-es:8.14.3
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
     env_file:
       - /defaults.env
     environment:
