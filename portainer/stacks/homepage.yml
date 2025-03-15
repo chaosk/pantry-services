@@ -6,6 +6,7 @@ services:
       - /defaults.env
     environment:
       - LOG_TARGETS=stdout
+      - HOMEPAGE_ALLOWED_HOSTS=${DOMAIN_NAME}
     volumes:
       - $DATA_DIR/homepage:/app/config
       - $SHARE_DIR/temp:/this-is-for-storage-stats
