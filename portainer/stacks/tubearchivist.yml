@@ -20,7 +20,7 @@ services:
       - TA_ENABLE_AUTH_PROXY=true
       - TA_USERNAME=tubearchivist
       - TA_PASSWORD=tubearchivist
-      - TA_AUTH_PROXY_USERNAME_HEADER=HTTP_X_AUTHENTIK_USERNAME
+      - TA_AUTH_PROXY_USERNAME_HEADER=X_AUTHENTIK_USERNAME
       - TA_AUTH_PROXY_LOGOUT_URL=https://auth.${DOMAIN_NAME}
     labels:
       - "traefik.enable=true"
